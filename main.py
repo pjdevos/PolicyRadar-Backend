@@ -18,7 +18,7 @@ API_HOST = os.getenv("API_HOST", "0.0.0.0")
 API_PORT = int(os.getenv("API_PORT", "8000"))
 DATA_DIR = Path(os.getenv("DATA_DIR", "./data"))
 VECTORS_DIR = Path(os.getenv("VECTORS_DIR", "./vectors"))
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,https://localhost:3000,https://*.railway.app").split(",")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,https://localhost:3000,https://localhost:3001,https://*.railway.app").split(",")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "info")
 
 app = FastAPI(
@@ -29,11 +29,11 @@ app = FastAPI(
     redoc_url="/api/redoc"
 )
 
-# CORS middleware
+# CORS middleware - permissive for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=False,  # Set to False when allowing all origins
     allow_methods=["*"],
     allow_headers=["*"],
 )
