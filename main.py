@@ -97,7 +97,7 @@ def create_sample_documents() -> List[Dict[str, Any]]:
             "source": "EUR-Lex",
             "doc_type": "strategy",
             "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52020DC0301",
-            "published": "2024-08-15T00:00:00",
+            "published": "2025-08-18T00:00:00",
             "topics": ["hydrogen", "climate", "energy"],
             "language": "en"
         },
@@ -108,7 +108,7 @@ def create_sample_documents() -> List[Dict[str, Any]]:
             "source": "EURACTIV",
             "doc_type": "news",
             "url": "https://www.euractiv.com/section/transport/",
-            "published": "2024-08-16T00:00:00",
+            "published": "2025-08-19T00:00:00",
             "topics": ["transport", "clean energy", "electric vehicles"],
             "language": "en"
         },
@@ -119,7 +119,7 @@ def create_sample_documents() -> List[Dict[str, Any]]:
             "source": "EP Open Data",
             "doc_type": "resolution",
             "url": "https://www.europarl.europa.eu/doceo/document/",
-            "published": "2024-08-17T00:00:00",
+            "published": "2025-08-17T00:00:00",
             "topics": ["transport", "sustainability", "parliament"],
             "language": "en"
         }
