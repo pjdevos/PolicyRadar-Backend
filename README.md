@@ -2,6 +2,8 @@
 
 Clean, minimal FastAPI application for Railway deployment.
 
+Last updated: 2025-08-19
+
 ## Files
 
 - `main.py` - FastAPI application
