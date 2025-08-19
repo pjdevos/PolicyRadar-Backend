@@ -12,7 +12,6 @@ from typing import List, Dict, Any, Optional
 
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
 
 # Environment configuration
 API_HOST = os.getenv("API_HOST", "0.0.0.0")
