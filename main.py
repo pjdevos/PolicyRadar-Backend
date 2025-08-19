@@ -24,7 +24,7 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "info")
 app = FastAPI(
     title="Policy Radar API",
     description="Brussels public affairs platform with AI-enhanced document tracking",
-    version="1.0.0",
+    version="1.0.1",
     docs_url="/api/docs",
     redoc_url="/api/redoc"
 )
