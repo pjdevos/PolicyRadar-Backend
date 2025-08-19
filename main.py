@@ -39,6 +39,7 @@ app.add_middleware(
         "https://localhost:3000",
         "https://localhost:3001",
         "https://policy-dashboard.vercel.app",
+        "https://policy-dashboard-iwva79ufk-pjdevos-projects-979bae0e.vercel.app",
         "https://*.vercel.app",
         "https://*.railway.app",
         "https://*.up.railway.app"
