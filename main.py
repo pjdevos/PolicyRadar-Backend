@@ -29,11 +29,19 @@ app = FastAPI(
     redoc_url="/api/redoc"
 )
 
-# CORS middleware - permissive for development
+# CORS middleware - configured for Railway deployment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
-    allow_credentials=False,  # Set to False when allowing all origins
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001", 
+        "https://localhost:3000",
+        "https://localhost:3001",
+        "https://*.railway.app",
+        "https://*.up.railway.app",
+        "*"  # Temporarily allow all for initial deployment
+    ],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
