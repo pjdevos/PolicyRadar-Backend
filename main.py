@@ -29,7 +29,7 @@ app = FastAPI(
     redoc_url="/api/redoc"
 )
 
-# CORS middleware - configured for Railway deployment
+# CORS middleware - configured for Vercel and local development
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -37,9 +37,10 @@ app.add_middleware(
         "http://localhost:3001", 
         "https://localhost:3000",
         "https://localhost:3001",
+        "https://policy-dashboard.vercel.app",
+        "https://*.vercel.app",
         "https://*.railway.app",
-        "https://*.up.railway.app",
-        "*"  # Temporarily allow all for initial deployment
+        "https://*.up.railway.app"
     ],
     allow_credentials=False,
     allow_methods=["*"],
