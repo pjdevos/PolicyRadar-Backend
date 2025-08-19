@@ -2,6 +2,7 @@
 """
 Policy Radar API - Complete Railway Deployment
 Brussels public affairs platform with AI-enhanced document tracking
+Last deployment: 2025-08-19 15:20
 """
 import os
 import json
