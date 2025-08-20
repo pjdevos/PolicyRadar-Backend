@@ -1,6 +1,36 @@
+# Policy Radar Backend - Enhanced Requirements
+# Maintains compatibility with existing minimal backend while adding advanced features
+
+# Core FastAPI (existing)
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-dotenv==1.0.0
 requests==2.31.0
 feedparser==6.0.10
 pydantic==2.5.0
+
+# Enhanced Configuration System
+pydantic-settings==2.1.0
+
+# AI & RAG Services (Optional - graceful fallback if not available)
+openai>=1.0.0
+anthropic>=0.7.0
+
+# Vector Search (Optional - graceful fallback if not available)  
+faiss-cpu>=1.7.0
+sentence-transformers>=2.2.0
+numpy>=1.24.0
+
+# Data Processing & Web Scraping (Optional)
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+pandas>=2.0.0
+
+# Security & Performance (Optional)
+slowapi>=0.1.0
+python-multipart>=0.0.6
+
+# Development & Testing (Optional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0
