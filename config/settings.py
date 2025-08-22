@@ -65,6 +65,7 @@ class APISettings(BaseSettings):
             "http://localhost:3001", 
             "http://localhost:3002",
             "https://policy-radar-frontend.vercel.app",
+            "https://policy-radar-frontend-jt8cxxl2d-pjdevos-projects-979bae0e.vercel.app",
             "https://policyradar-backend-production.up.railway.app",
             # Add more specific domains as needed instead of wildcards
         ],

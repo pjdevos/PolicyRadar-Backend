@@ -174,13 +174,29 @@ if ADVANCED_CONFIG:
         allow_headers=["Content-Type", "Accept", "Authorization"],
     )
 else:
-    # Fallback CORS
+    # Fallback CORS with pattern matching for Vercel previews
+    import re
+    
+    def custom_cors_handler(request):
+        origin = request.headers.get("origin")
+        if origin:
+            # Allow localhost
+            if "localhost" in origin:
+                return True
+            # Allow main domains
+            if origin in ["https://policy-radar-frontend.vercel.app", "https://policyradar-backend-production.up.railway.app"]:
+                return True
+            # Allow Vercel preview URLs pattern
+            if re.match(r'https://policy-radar-frontend.*\.vercel\.app', origin):
+                return True
+        return False
+    
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_origins=["*"],  # Will be filtered by origin_regex
+        allow_credentials=False,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type", "Accept", "Authorization"],
     )
 
 # Advanced security headers and rate limiting
