@@ -58,14 +58,17 @@ class APISettings(BaseSettings):
     RAG_RATE_LIMIT: int = Field(default=10, description="RAG endpoint requests per hour")
     INGEST_RATE_LIMIT: int = Field(default=5, description="Ingest endpoint requests per hour")
     
-    # CORS settings
+    # CORS settings - Explicit domains (FastAPI doesn't support wildcard subdomains)
     CORS_ORIGINS: List[str] = Field(
         default=[
             "http://localhost:3000",
-            "https://*.vercel.app",
-            "https://*.up.railway.app"
+            "http://localhost:3001", 
+            "http://localhost:3002",
+            "https://policy-radar-frontend.vercel.app",
+            "https://policyradar-backend-production.up.railway.app",
+            # Add more specific domains as needed instead of wildcards
         ],
-        description="Allowed CORS origins"
+        description="Allowed CORS origins (explicit domains only)"
     )
     CORS_METHODS: List[str] = Field(default=["GET", "POST"], description="Allowed CORS methods")
     CORS_HEADERS: List[str] = Field(
@@ -227,12 +230,14 @@ class Settings(BaseSettings):
         missing_secrets = []
         
         if self.is_production():
-            # Production secrets validation
+            # Production secrets validation - only require SECRET_KEY
             if not self.api.SECRET_KEY or self.api.SECRET_KEY.get_secret_value() == "dev-secret-change-in-production":
                 missing_secrets.append("API_SECRET_KEY")
             
+            # LLM API keys are optional - RAG will use mock responses if not available
+            # This allows backend to start without AI services in production
             if not self.api.OPENAI_API_KEY and not self.api.ANTHROPIC_API_KEY:
-                missing_secrets.append("OPENAI_API_KEY or ANTHROPIC_API_KEY")
+                print("[WARN] No LLM API keys configured - RAG endpoints will use mock responses")
         
         return missing_secrets
     

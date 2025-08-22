@@ -380,17 +380,9 @@ async def root():
     }
 
 @app.get("/health")
+@app.get("/api/health") 
 async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
-        "version": "2.0.0"
-    }
-
-@app.get("/api/health")
-async def api_health():
-    """Detailed API health check"""
+    """Unified health check endpoint (available at both /health and /api/health)"""
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
