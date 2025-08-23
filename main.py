@@ -169,54 +169,14 @@ if ADVANCED_CONFIG:
 # Enhanced CORS with pattern matching for Vercel deployments
 import re
 
-def is_allowed_origin(origin: str) -> bool:
-    """Check if origin is allowed based on configured origins and patterns"""
-    if not origin:
-        return False
-    
-    # Allow localhost for development
-    if "localhost" in origin:
-        return True
-    
-    # Check explicit origins from configuration
-    if ADVANCED_CONFIG:
-        if origin in settings.api.CORS_ORIGINS:
-            return True
-    else:
-        # Fallback explicit origins
-        if origin in ["https://policy-radar-frontend.vercel.app", "https://policyradar-backend-production.up.railway.app"]:
-            return True
-    
-    # Allow Vercel preview URLs pattern
-    if re.match(r'https://policy-radar-frontend.*\.vercel\.app', origin):
-        return True
-    
-    return False
-
-# Custom CORS middleware with pattern matching
-@app.middleware("http")
-async def cors_handler(request, call_next):
-    if request.method == "OPTIONS":
-        origin = request.headers.get("origin")
-        if is_allowed_origin(origin):
-            response = Response()
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Methods"] = "GET, POST"
-            response.headers["Access-Control-Allow-Headers"] = "Content-Type, Accept, Authorization"
-            return response
-        else:
-            return Response(status_code=403)
-    
-    response = await call_next(request)
-    
-    # Add CORS headers to actual requests
-    origin = request.headers.get("origin")
-    if is_allowed_origin(origin):
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Accept, Authorization"
-    
-    return response
+# Add standard CORS middleware with pattern-based origin checking
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"https://policy-radar-frontend.*\.vercel\.app|http://localhost:\d+|https://policyradar-backend-production\.up\.railway\.app",
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Accept", "Authorization"],
+)
 
 # Advanced security headers and rate limiting
 if ADVANCED_CONFIG:
