@@ -67,6 +67,7 @@ class APISettings(BaseSettings):
             "https://policy-radar-frontend.vercel.app",
             "https://policy-radar-frontend-jt8cxxl2d-pjdevos-projects-979bae0e.vercel.app",
             "https://policy-radar-frontend-jf19kb2py-pjdevos-projects-979bae0e.vercel.app",
+            "https://policyradar-frontend-production.up.railway.app",
             "https://policyradar-backend-production.up.railway.app",
             # Add common Vercel deployment patterns
             "https://policy-radar-frontend-git-main-pjdevos-projects-979bae0e.vercel.app",
@@ -234,15 +235,19 @@ class Settings(BaseSettings):
         """Validate required secrets are present"""
         missing_secrets = []
         
-        if self.is_production():
-            # Production secrets validation - only require SECRET_KEY
-            if not self.api.SECRET_KEY or self.api.SECRET_KEY.get_secret_value() == "dev-secret-change-in-production":
+        # Check SECRET_KEY
+        if not self.api.SECRET_KEY or self.api.SECRET_KEY.get_secret_value() == "dev-secret-change-in-production":
+            if self.is_production():
                 missing_secrets.append("API_SECRET_KEY")
-            
-            # LLM API keys are optional - RAG will use mock responses if not available
-            # This allows backend to start without AI services in production
-            if not self.api.OPENAI_API_KEY and not self.api.ANTHROPIC_API_KEY:
+            else:
+                print("[WARN] Using default SECRET_KEY in development - change in production")
+        
+        # LLM API keys are optional - RAG will use mock responses if not available
+        if not self.api.OPENAI_API_KEY and not self.api.ANTHROPIC_API_KEY:
+            if self.is_production():
                 print("[WARN] No LLM API keys configured - RAG endpoints will use mock responses")
+            else:
+                print("[INFO] No LLM API keys configured - using development mode")
         
         return missing_secrets
     
@@ -292,14 +297,20 @@ def validate_startup_config() -> None:
     # Check required secrets
     missing_secrets = settings.validate_secrets()
     if missing_secrets:
-        raise ValueError(f"Missing required secrets: {', '.join(missing_secrets)}")
+        if settings.is_production():
+            raise ValueError(f"Missing required production secrets: {', '.join(missing_secrets)}")
+        else:
+            print(f"[WARN] Missing secrets in development: {', '.join(missing_secrets)}")
     
     # Create required directories
     try:
         settings.create_directories()
         print("[OK] Required directories created/verified")
     except Exception as e:
-        raise ValueError(f"Failed to create required directories: {e}")
+        print(f"[WARN] Directory creation issue: {e}")
+        # Don't fail startup for directory issues in development
+        if settings.is_production():
+            raise ValueError(f"Failed to create required directories: {e}")
     
     # Validate paths exist
     if not settings.database.VECTOR_DB_PATH.exists():
