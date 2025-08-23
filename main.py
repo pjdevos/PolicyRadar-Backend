@@ -169,10 +169,10 @@ if ADVANCED_CONFIG:
 # Enhanced CORS with pattern matching for Vercel deployments
 import re
 
-# Add standard CORS middleware with pattern-based origin checking
+# Add CORS middleware with comprehensive pattern matching
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://policy-radar-frontend.*\.vercel\.app|http://localhost:\d+|https://policyradar-backend-production\.up\.railway\.app",
+    allow_origin_regex=r"https://policy-radar-frontend.*\.vercel\.app|https://policyradar-frontend.*\.up\.railway\.app|http://localhost:\d+|https://policyradar-backend-production\.up\.railway\.app",
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "Accept", "Authorization"],

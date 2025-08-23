@@ -67,6 +67,7 @@ class APISettings(BaseSettings):
             "https://policy-radar-frontend.vercel.app",
             "https://policy-radar-frontend-jt8cxxl2d-pjdevos-projects-979bae0e.vercel.app",
             "https://policy-radar-frontend-jf19kb2py-pjdevos-projects-979bae0e.vercel.app",
+            "https://policy-radar-frontend-dnzv5irtu-pjdevos-projects-979bae0e.vercel.app",
             "https://policyradar-frontend-production.up.railway.app",
             "https://policyradar-backend-production.up.railway.app",
             # Add common Vercel deployment patterns
