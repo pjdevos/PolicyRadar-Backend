@@ -169,12 +169,25 @@ if ADVANCED_CONFIG:
 # Enhanced CORS with pattern matching for Vercel deployments
 import re
 
-# Add CORS middleware with comprehensive pattern matching
+# CORS configuration with explicit origins (more reliable than regex)
+cors_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001", 
+    "http://localhost:3002",
+    "https://policy-radar-frontend.vercel.app",
+    "https://policy-radar-frontend-jt8cxxl2d-pjdevos-projects-979bae0e.vercel.app",
+    "https://policy-radar-frontend-jf19kb2py-pjdevos-projects-979bae0e.vercel.app", 
+    "https://policy-radar-frontend-60ubuvbk3-pjdevos-projects-979bae0e.vercel.app",
+    "https://policy-radar-frontend-dnzv5irtu-pjdevos-projects-979bae0e.vercel.app",
+    "https://policyradar-frontend-production.up.railway.app",
+    "https://policyradar-backend-production.up.railway.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://policy-radar-frontend.*\.vercel\.app|https://policyradar-frontend.*\.up\.railway\.app|http://localhost:\d+|https://policyradar-backend-production\.up\.railway\.app",
+    allow_origins=cors_origins,
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Accept", "Authorization"],
 )
 
