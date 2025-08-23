@@ -165,39 +165,58 @@ if ADVANCED_CONFIG:
         TrustedHostMiddleware,
         allowed_hosts=settings.security.TRUSTED_HOSTS
     )
-    
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.api.CORS_ORIGINS,
-        allow_credentials=False,
-        allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type", "Accept", "Authorization"],
-    )
-else:
-    # Fallback CORS with pattern matching for Vercel previews
-    import re
-    
-    def custom_cors_handler(request):
-        origin = request.headers.get("origin")
-        if origin:
-            # Allow localhost
-            if "localhost" in origin:
-                return True
-            # Allow main domains
-            if origin in ["https://policy-radar-frontend.vercel.app", "https://policyradar-backend-production.up.railway.app"]:
-                return True
-            # Allow Vercel preview URLs pattern
-            if re.match(r'https://policy-radar-frontend.*\.vercel\.app', origin):
-                return True
+
+# Enhanced CORS with pattern matching for Vercel deployments
+import re
+
+def is_allowed_origin(origin: str) -> bool:
+    """Check if origin is allowed based on configured origins and patterns"""
+    if not origin:
         return False
     
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Will be filtered by origin_regex
-        allow_credentials=False,
-        allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type", "Accept", "Authorization"],
-    )
+    # Allow localhost for development
+    if "localhost" in origin:
+        return True
+    
+    # Check explicit origins from configuration
+    if ADVANCED_CONFIG:
+        if origin in settings.api.CORS_ORIGINS:
+            return True
+    else:
+        # Fallback explicit origins
+        if origin in ["https://policy-radar-frontend.vercel.app", "https://policyradar-backend-production.up.railway.app"]:
+            return True
+    
+    # Allow Vercel preview URLs pattern
+    if re.match(r'https://policy-radar-frontend.*\.vercel\.app', origin):
+        return True
+    
+    return False
+
+# Custom CORS middleware with pattern matching
+@app.middleware("http")
+async def cors_handler(request, call_next):
+    if request.method == "OPTIONS":
+        origin = request.headers.get("origin")
+        if is_allowed_origin(origin):
+            response = Response()
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST"
+            response.headers["Access-Control-Allow-Headers"] = "Content-Type, Accept, Authorization"
+            return response
+        else:
+            return Response(status_code=403)
+    
+    response = await call_next(request)
+    
+    # Add CORS headers to actual requests
+    origin = request.headers.get("origin")
+    if is_allowed_origin(origin):
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Accept, Authorization"
+    
+    return response
 
 # Advanced security headers and rate limiting
 if ADVANCED_CONFIG:
