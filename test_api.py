@@ -6,7 +6,7 @@ import requests
 import json
 
 # Replace with your actual Railway URL
-BASE_URL = "https://your-app.railway.app"  # Update this!
+BASE_URL = "http://127.0.0.1:8000"  # Update this!
 
 def test_endpoint(endpoint, method="GET", data=None):
     """Test an API endpoint"""

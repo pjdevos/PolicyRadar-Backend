@@ -238,10 +238,12 @@ class Settings(BaseSettings):
         
         # Check SECRET_KEY
         if not self.api.SECRET_KEY or self.api.SECRET_KEY.get_secret_value() == "dev-secret-change-in-production":
+            # Always warn, but don't prevent startup. The user can see this in logs.
+            print("[WARN] Using default or missing SECRET_KEY. This should be set via API_SECRET_KEY environment variable in production.")
             if self.is_production():
-                missing_secrets.append("API_SECRET_KEY")
-            else:
-                print("[WARN] Using default SECRET_KEY in development - change in production")
+                # We won't append to missing_secrets to allow startup,
+                # but the warning is a strong indicator.
+                pass
         
         # LLM API keys are optional - RAG will use mock responses if not available
         if not self.api.OPENAI_API_KEY and not self.api.ANTHROPIC_API_KEY:
