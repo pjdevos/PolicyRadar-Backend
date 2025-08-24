@@ -20,6 +20,8 @@ from functools import wraps
 import time
 from collections import defaultdict
 from threading import Lock
+import threading
+from ingestion_service import IngestionService
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Query, status, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -592,11 +594,48 @@ async def rag_query(query_request: RAGQuery, request: Request):
             detail=f"Error processing RAG query: {str(e)}"
         )
 
+# Lock for safely updating the global vector store
+vector_store_lock = threading.Lock()
+
+def background_ingest_and_reindex(rebuild: bool):
+    """
+    Background task to run data ingestion and then re-index the vector store.
+    """
+    global vector_store, rag_service
+
+    print("[INFO] Background task started: Data Ingestion")
+    # Step 1: Run ingestion
+    ingestion_service = IngestionService(settings)
+    jsonl_path = ingestion_service.run_ingestion()
+    print(f"[INFO] Ingestion complete. Data saved to {jsonl_path}")
+
+    if rebuild:
+        print("[INFO] Background task: Starting vector store re-indexing...")
+        try:
+            # Step 2: Create a new vector store and build the index
+            new_vector_store = PolicyVectorStore()
+            new_vector_store.add_documents(jsonl_path)
+
+            VECTORS_DIR.mkdir(exist_ok=True)
+            new_vector_store.save_index(str(INDEX_PATH))
+
+            # Step 3: Atomically replace the global vector store and RAG service
+            with vector_store_lock:
+                vector_store = new_vector_store
+                # Re-initialize RAG service with the new index path
+                if RAG_AVAILABLE:
+                    rag_service = PolicyRAGService(str(INDEX_PATH))
+
+            print("[OK] Background task: Vector store re-indexing complete.")
+
+        except Exception as e:
+            print(f"[ERROR] Background task: Failed to re-index vector store: {e}")
+
 @app.post("/api/ingest") 
 async def trigger_ingest(request: IngestRequest, background_tasks: BackgroundTasks):
     """Trigger data ingestion and vector indexing"""
     
-    # Input validation
+    # Input validation for the request parameters, even if not all are used by ingestion yet
     topic = request.topic.strip()
     max_length = settings.security.MAX_TOPIC_LENGTH if ADVANCED_CONFIG else 50
     
@@ -613,17 +652,21 @@ async def trigger_ingest(request: IngestRequest, background_tasks: BackgroundTas
             status_code=400,
             detail="Topic contains invalid characters"
         )
+
+    # Add the long-running task to the background
+    background_tasks.add_task(
+        background_ingest_and_reindex,
+        rebuild=request.rebuild_index
+    )
     
-    # Mock ingestion response (in production, would trigger background task)
     return {
-        "message": f"Data ingestion started for topic: {topic}",
+        "message": "Data ingestion task accepted.",
         "status": "started",
-        "estimated_duration": "2-5 minutes",
-        "check_status": "/api/health",
+        "rebuild_index": request.rebuild_index,
+        "details": "This is a long-running background task. Check server logs for progress.",
         "parameters": {
             "topic": topic,
-            "days": request.days,
-            "rebuild_index": request.rebuild_index
+            "days": request.days
         },
         "timestamp": datetime.utcnow().isoformat()
     }

@@ -25,6 +25,7 @@ numpy>=1.24.0
 beautifulsoup4>=4.12.0
 lxml>=4.9.0
 pandas>=2.0.0
+sparqlwrapper>=1.8.5
 
 # Security & Performance (Optional)
 slowapi>=0.1.0
